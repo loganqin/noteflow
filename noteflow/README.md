@@ -83,9 +83,6 @@ The default configuration matches the paper's locked setting:
 | `tolerance` | `0.001` | Capacity and KKT stopping tolerance |
 | `damping` | `1.0` | Price-update damping |
 
-A complete synthetic example is available in
-[examples/quickstart.py](examples/quickstart.py). The example is generated in
-code and is not research data.
 
 
 ## Command-line interface
