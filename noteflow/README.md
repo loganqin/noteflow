@@ -10,10 +10,6 @@ fixed candidate-pair scores from any upstream scorer into:
 3. a complete candidate ranking for every withdrawal, with the feasible
    assignment fixed at rank one.
 
-This is a **code-only release**. It contains no transaction data, labels,
-model checkpoints, candidate scores, cached prices, or experiment results.
-Data will be distributed separately. See [DATA.md](DATA.md) for the exact
-input contract and data-separation policy.
 
 ## Method overview
 
@@ -75,36 +71,6 @@ To install the development dependencies:
 python -m pip install -e '.[dev]'
 ```
 
-## Quick start
-
-Inputs use a packed one-dimensional representation. `counts[i]` is the number
-of candidates for query `i`. Its scores occupy the corresponding consecutive
-segment of `scores`. Candidate columns are prefixes of one shared, stably
-ordered deposit universe: `0, ..., counts[i] - 1`.
-
-```python
-import numpy as np
-
-from noteflow import NoteFlowConfig, run_noteflow
-
-counts = np.array([3, 4, 4])
-scores = np.concatenate([
-    [2.0, 1.9, 0.1],
-    [2.1, 1.2, 0.4, 0.0],
-    [1.8, 1.7, 1.6, 0.3],
-])
-
-result = run_noteflow(
-    scores,
-    counts,
-    row_ids=np.array(["withdrawal-a", "withdrawal-b", "withdrawal-c"]),
-    config=NoteFlowConfig(),
-)
-
-print(result.assignment.columns)  # Jointly feasible rank-one choices
-print(result.ranking_for(0))      # Complete ranking for query 0
-print(result.diagnostics())       # Convergence and approximation status
-```
 
 The default configuration matches the paper's locked setting:
 
@@ -121,25 +87,6 @@ A complete synthetic example is available in
 [examples/quickstart.py](examples/quickstart.py). The example is generated in
 code and is not research data.
 
-## Input contract
-
-The prefix representation is part of the method's problem setting, not merely
-a storage optimization. The graph must admit an injective assignment covering
-all queries. After sorting `counts`, the one-based `r`-th count must be at least
-`r`.
-
-The Python API accepts:
-
-| Argument | Shape | Description |
-|---|---|---|
-| `scores` | `(sum(counts),)` | Finite pair scores packed row by row |
-| `counts` | `(num_queries,)` | Positive integer prefix lengths |
-| `row_ids` | `(num_queries,)`, optional | Unique stable public IDs used only for deterministic backbone ties |
-| `config` | scalar object, optional | A `NoteFlowConfig`; paper defaults are used when omitted |
-
-Local candidate columns are returned by the implementation. Applications that
-use transaction hashes or other external identifiers should maintain their own
-column-to-identifier mapping outside this repository.
 
 ## Command-line interface
 
@@ -182,47 +129,4 @@ With the default sparse support, price estimation uses at most approximately
 `num_queries * (top_l + 1)` edges. Fixed-first ranking still processes and
 returns every input candidate.
 
-## What this release reproduces
-
-This package reproduces the NoteFlow inference algorithm given frozen candidate
-scores. It does not train upstream scorers or reproduce the paper's numerical
-tables without the separately managed data, score arrays, and model artifacts.
-The code makes non-convergence and sparse-support approximation visible instead
-of silently treating prices as an exact full-graph solution.
-
-## Testing and release audit
-
-```bash
-pytest -q
-python scripts/check_release.py
-python examples/quickstart.py
-python -m build
-```
-
-The tests cover exact assignment against brute-force optima, analytically
-checkable soft prices, sparse-support permutation equivariance, fixed-first
-ranking completeness, non-convergence reporting, input validation, and a
-pickle-free CLI round trip.
-
-The release audit rejects common data, checkpoint, cache, and result paths and
-file formats. The source-distribution manifest applies the same exclusions.
-
-## Scope and responsible use
-
-- Candidate sets must be prefixes of one stable deposit ordering and must admit
-  a row-covering injective assignment.
-- The implementation performs joint inference over an offline observation
-  window. It is not a strictly online predictor.
-- The single-use model does not directly cover splitting, many-to-many links,
-  missing ground truth, or true matches outside the candidate set.
-- A predicted link is a ranking hypothesis, not evidence of identity, intent,
-  or illegal activity.
-- Results obtained on one dataset or simulator should not be presented as
-  validated performance on unrelated real-world mixer activity.
-
-## License
-
-NoteFlow is released under the MIT License. See [LICENSE](LICENSE). Replace the
-copyright metadata before publication if your institution requires different
-attribution or licensing terms.
 
