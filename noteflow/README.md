@@ -112,21 +112,4 @@ The output archive contains:
 | `ranking_offsets` | Row boundaries for `rankings` |
 | `metadata` | JSON configuration and convergence diagnostics |
 
-NumPy archives are read with `allow_pickle=False`. Keep both inputs and outputs
-outside the source repository. Use `--full-support` to estimate prices on every
-candidate edge; the hard assignment always uses the full graph regardless of
-this option.
-
-## Scale and memory behavior
-
-The exact assignment stage allocates
-`num_queries * max(counts)` float64 cells. The default guard rejects problems
-above 100 million cells, approximately 0.75 GiB for the main cost matrix. Set
-`max_dense_elements` to a larger value or `None` only after confirming that the
-machine has sufficient memory.
-
-With the default sparse support, price estimation uses at most approximately
-`num_queries * (top_l + 1)` edges. Fixed-first ranking still processes and
-returns every input candidate.
-
 
