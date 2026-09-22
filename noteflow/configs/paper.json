@@ -1,0 +1,10 @@
+{
+  "temperature": 0.3,
+  "strength": 1.0,
+  "top_l": 64,
+  "max_iter": 1000,
+  "tolerance": 0.001,
+  "damping": 1.0,
+  "max_dense_elements": 100000000
+}
+

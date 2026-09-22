@@ -1,0 +1,15 @@
+include README.md DATA.md LICENSE
+recursive-include configs *.json
+recursive-include examples *.py
+recursive-include scripts *.py
+recursive-include tests *.py
+prune data
+prune datasets
+prune inputs
+prune outputs
+prune artifacts
+prune cache
+prune checkpoints
+prune models
+prune results
+global-exclude *.csv *.tsv *.parquet *.feather *.npy *.npz *.pkl *.pickle *.pt *.pth *.ckpt
